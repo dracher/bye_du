@@ -5,7 +5,7 @@ require 'tempfile'
 require 'logger'
 require 'json'
 
-TOTAL_PAGE = 10  # Put actual page number here
+TOTAL_PAGE = 100  # Put actual page number here
 
 SPACE_BASE_URL = "http://hi.baidu.com"
 SPACE_URL = "http://hi.baidu.com/mvp_xuan/?page=%s"
@@ -17,8 +17,8 @@ POST_CONTENT = 'div[id="content"]'
 
 OUT_PUT_DIR = '/tmp/bye_baidu/' # Change it to wherever have write permission
 
-WAIT_TIME_SHORT = 0.5
-WAIT_TIME_LONG = 1
+WAIT_TIME_SHORT = 0.8
+WAIT_TIME_LONG = 3
 
 
 def get_all_link(interval)
@@ -38,15 +38,13 @@ def get_post_detail(url)
            ['time',POST_TIME],
            ['content',POST_CONTENT]]
   res = {}
-  p "Processing %s" % url
+  print '.'
   doc = Nokogiri::HTML(open(url))
   posts.each do |x, y|
     doc.css(y).each do |n|
       res[x] = n.content
     end
   end
-
-  p res
   sleep(WAIT_TIME_SHORT)
   res
 end
@@ -75,10 +73,10 @@ def main
     get_all_link(s).each do |url|
       final_res << get_post_detail(File.join(SPACE_BASE_URL, url))
     end
-    p final_res
+
     write_file(final_res, "%s_%s.json" % [s[0], s[-1]])
     final_res.clear
-    p final_res
+    p "Done"
     sleep(WAIT_TIME_LONG)
   end
 end
